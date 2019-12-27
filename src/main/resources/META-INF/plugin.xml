@@ -1,0 +1,27 @@
+<idea-plugin>
+    <id>aidangrabe.com.testplugin</id>
+    <name>Test</name>
+    <vendor email="aidan@teamwork.com" url="http://www.teamwork.com">Teamwork.com</vendor>
+
+    <description><![CDATA[
+    This is my text right here.
+    This is my text right here.
+    description.
+    ]]></description>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products
+    <depends>com.intellij.modules.lang</depends>
+    -->
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="Sample Calendar" secondary="true" icon="/myToolWindow/plus.png" anchor="right"
+                    factoryClass="com.aidangrabe.sqlitex.WindowFactory"/>
+    </extensions>
+
+    <actions>
+        <!-- Add your actions here -->
+    </actions>
+</idea-plugin>
