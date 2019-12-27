@@ -1,59 +1,31 @@
 package com.aidangrabe.sqlitex;
 
+import com.aidangrabe.sqlitex.android.DeviceOption;
 import com.intellij.openapi.wm.ToolWindow;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-import java.awt.*;
 
+/**
+ * This class needs to be in Java as the GUI Designer cannot bind to Kotlin classes yet:
+ * https://youtrack.jetbrains.com/issue/KT-6660
+ */
 public class MyToolWindow {
     private JPanel myToolWindowContent;
     private JTable resultsTable;
     private JTextArea queryField;
+    private JComboBox<DeviceOption> devicePicker;
+    private JComboBox<String> processPicker;
+    private JComboBox<String> databasePicker;
 
     public MyToolWindow(ToolWindow toolWindow) {
-        System.out.println("Hello World!");
+        MainWindowViewHolder viewHolder = new MainWindowViewHolder(
+                queryField, resultsTable, devicePicker, processPicker, databasePicker);
 
-        DefaultTableModel tableModel = new DefaultTableModel(new Object[]{"Column 1", "Column 2"}, 20);
-        tableModel.addRow(new Object[]{"Value 1", "Value 2"});
-        resultsTable.setModel(tableModel);
-
-        queryField.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                System.out.println("insert updated: " + getDocumentText(e.getDocument()));
-
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                System.out.println("remove updated: " + getDocumentText(e.getDocument()));
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                System.out.println("changed updated: " + getDocumentText(e.getDocument()));
-            }
-        });
+        new SqlitexMainWindow(viewHolder);
     }
 
     public JPanel getContent() {
         return myToolWindowContent;
-    }
-
-    private String getDocumentText(Document document) {
-        try {
-            return document.getText(0, document.getLength());
-        } catch (BadLocationException e) {
-            e.printStackTrace();
-            return "";
-        }
     }
 
 }
