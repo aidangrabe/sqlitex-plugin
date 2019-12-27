@@ -12,14 +12,20 @@ data class MainWindowViewHolder(
         private val databasePicker: JComboBox<String>
 ) {
 
+    @Volatile
     var deviceChangedListener: ((DeviceOption) -> Unit)? = null
+    @Volatile
+    var processChangedListener: ((String) -> Unit)? = null
 
     init {
         devicePicker.renderer = SimpleListCellRenderer.with<DeviceOption> { it.name }
 
         devicePicker.addItemListener {
-            println("Item selected: $it")
             deviceChangedListener?.invoke(it.item as DeviceOption)
+        }
+
+        processPicker.addItemListener {
+            processChangedListener?.invoke(it.item.toString())
         }
     }
 
