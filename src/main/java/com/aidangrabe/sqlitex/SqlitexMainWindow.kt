@@ -15,6 +15,11 @@ class SqlitexMainWindow(
             // resultsTable.model = tableModel
             queryField.addTextChangedListener { println("Query changed: $it") }
 
+            submitQueryListener = {
+                println("on query submit!")
+                println("query: '$it'")
+            }
+
             deviceChangedListener = {
                 if (it !is NoDevice) {
                     onDeviceSelected(it.toDevice())

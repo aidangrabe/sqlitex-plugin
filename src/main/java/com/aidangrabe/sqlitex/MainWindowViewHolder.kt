@@ -2,6 +2,8 @@ package com.aidangrabe.sqlitex
 
 import com.aidangrabe.sqlitex.android.DeviceOption
 import com.aidangrabe.sqlitex.swingx.SimpleListCellRenderer
+import java.awt.event.KeyEvent
+import java.awt.event.KeyListener
 import javax.swing.*
 
 data class MainWindowViewHolder(
@@ -18,8 +20,12 @@ data class MainWindowViewHolder(
     var processChangedListener: ((String) -> Unit)? = null
     @Volatile
     var databaseChangedListener: ((String) -> Unit)? = null
+    @Volatile
+    var submitQueryListener: ((String) -> Unit)? = null
 
     init {
+        queryField.addKeyListener(QueryFieldKeyListener())
+
         devicePicker.renderer = SimpleListCellRenderer.with<DeviceOption> { it.name }
 
         devicePicker.addItemListener {
@@ -57,6 +63,40 @@ data class MainWindowViewHolder(
         if (database.isNotBlank()) {
             listener(database)
         }
+    }
+
+    private fun invokeOnSubmitListener() {
+        val listener = submitQueryListener ?: return
+        val query = queryField.text
+
+        if (query.isNotBlank()) {
+            listener(query)
+        }
+    }
+
+    private inner class QueryFieldKeyListener : KeyListener {
+
+        override fun keyTyped(e: KeyEvent) {
+        }
+
+        override fun keyPressed(e: KeyEvent) {
+            when (e.keyCode) {
+                KeyEvent.VK_ENTER -> handleEnterKey(e)
+            }
+        }
+
+        override fun keyReleased(e: KeyEvent) {
+        }
+
+        private fun handleEnterKey(event: KeyEvent) {
+            if (event.isShiftDown) {
+                // TODO should insert at current position, not append
+                queryField.append("\n")
+            } else {
+                invokeOnSubmitListener()
+            }
+        }
+
     }
 
 }
