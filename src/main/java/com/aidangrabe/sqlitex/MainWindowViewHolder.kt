@@ -16,6 +16,8 @@ data class MainWindowViewHolder(
     var deviceChangedListener: ((DeviceOption) -> Unit)? = null
     @Volatile
     var processChangedListener: ((String) -> Unit)? = null
+    @Volatile
+    var databaseChangedListener: ((String) -> Unit)? = null
 
     init {
         devicePicker.renderer = SimpleListCellRenderer.with<DeviceOption> { it.name }
@@ -26,6 +28,10 @@ data class MainWindowViewHolder(
 
         processPicker.addItemListener {
             processChangedListener?.invoke(it.item.toString())
+        }
+
+        databasePicker.addItemListener {
+            invokeDatabaseChangedListener(it.item.toString())
         }
     }
 
@@ -39,6 +45,18 @@ data class MainWindowViewHolder(
 
     fun setAvailableDatabases(databases: List<String>) {
         databasePicker.setAvailableOptions(databases)
+
+        if (databases.size == 1) {
+            invokeDatabaseChangedListener(databases.first())
+        }
+    }
+
+    private fun invokeDatabaseChangedListener(database: String) {
+        val listener = databaseChangedListener ?: return
+
+        if (database.isNotBlank()) {
+            listener(database)
+        }
     }
 
 }

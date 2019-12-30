@@ -8,6 +8,7 @@ class SqlitexMainWindow(
 ) {
 
     private var process: String = ""
+    private var database: String = ""
 
     init {
         with (viewHolder) {
@@ -23,6 +24,10 @@ class SqlitexMainWindow(
             processChangedListener = {
                 process = it
                 setAvailableDatabases(getAvailableDatabases(process))
+            }
+
+            databaseChangedListener = {
+                database = it
             }
 
             val devices = getAvailableDevices()
