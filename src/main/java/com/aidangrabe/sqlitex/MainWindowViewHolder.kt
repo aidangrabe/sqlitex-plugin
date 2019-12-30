@@ -59,9 +59,10 @@ data class MainWindowViewHolder(
 
     private fun invokeDatabaseChangedListener(database: String) {
         val listener = databaseChangedListener ?: return
+        val cleanedDatabase = database.trim()
 
-        if (database.isNotBlank()) {
-            listener(database)
+        if (cleanedDatabase.isNotBlank()) {
+            listener(cleanedDatabase)
         }
     }
 

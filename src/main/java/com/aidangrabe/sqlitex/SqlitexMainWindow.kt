@@ -13,11 +13,11 @@ class SqlitexMainWindow(
     init {
         with (viewHolder) {
             // resultsTable.model = tableModel
-            queryField.addTextChangedListener { println("Query changed: $it") }
+//            queryField.addTextChangedListener { println("Query changed: $it") }
 
             submitQueryListener = {
-                println("on query submit!")
-                println("query: '$it'")
+                val sqliteOutput = SqliteContext(process, database).exec("$it;")
+                println("Output: $sqliteOutput")
             }
 
             deviceChangedListener = {
