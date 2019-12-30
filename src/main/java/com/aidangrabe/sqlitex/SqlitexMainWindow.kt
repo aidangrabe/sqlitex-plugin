@@ -1,7 +1,8 @@
 package com.aidangrabe.sqlitex
 
 import com.aidangrabe.sqlitex.android.*
-import com.aidangrabe.sqlitex.swingx.addTextChangedListener
+import com.aidangrabe.sqlitex.data.TableParser
+import javax.swing.table.DefaultTableModel
 
 class SqlitexMainWindow(
         private val viewHolder: MainWindowViewHolder
@@ -11,13 +12,22 @@ class SqlitexMainWindow(
     private var database: String = ""
 
     init {
-        with (viewHolder) {
-            // resultsTable.model = tableModel
-//            queryField.addTextChangedListener { println("Query changed: $it") }
-
+        with(viewHolder) {
             submitQueryListener = {
                 val sqliteOutput = SqliteContext(process, database).exec("$it;")
-                println("Output: $sqliteOutput")
+
+                val parser = TableParser()
+                val tableData = parser.parse(sqliteOutput)
+
+                val tableModel = DefaultTableModel()
+
+                println("column names: ${tableData.columnNames}")
+                println("rows: ${tableData.rows}")
+
+                tableData.columnNames.forEach { tableModel.addColumn(it) }
+                tableData.rows.forEach { tableModel.addRow(it.toTypedArray()) }
+
+                resultsTable.model = tableModel
             }
 
             deviceChangedListener = {
