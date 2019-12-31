@@ -41,7 +41,7 @@ object Adb {
 
         val packages = exec("shell", "pm", "list", "packages")
         return packageNameRegex.findAll(packages)
-                .mapNotNull { it.groups[1]?.value }
+                .mapNotNull { it.groups[1]?.value?.trim() }
                 .map { AndroidPackage(it) }
                 .toList()
     }

@@ -60,7 +60,12 @@ class SqlitexMainWindow(
     }
 
     private fun getAvailableProcesses(): List<String> {
-        val processes = Adb.listPackages().map { it.name }
+        val packagePrefixesToIgnore = listOf("com.android.", "com.google.")
+        val processes = Adb.listPackages()
+                .map { it.name }
+                .filter { !it.startsWithAnyOf(packagePrefixesToIgnore) }
+                .sorted()
+
         return if (processes.isEmpty()) listOf("No processes") else processes
     }
 
@@ -72,3 +77,10 @@ class SqlitexMainWindow(
 }
 
 private fun DeviceOption.toDevice() = Device(name, type)
+
+private fun String.startsWithAnyOf(prefixes: List<String>): Boolean {
+    for (prefix in prefixes) {
+        if (startsWith(prefix)) return true
+    }
+    return false
+}
