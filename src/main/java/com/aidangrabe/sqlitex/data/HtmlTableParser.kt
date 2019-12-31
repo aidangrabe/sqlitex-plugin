@@ -3,8 +3,11 @@ package com.aidangrabe.sqlitex.data
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 
-class TableParser {
+class HtmlTableParser {
 
+    /**
+     * Parse the given Table HTML. This HTML should be the raw contents of the table itself, excluding the `<table>` tag.
+     */
     fun parse(html: String): TableData {
         val document = Jsoup.parse("<html><body><table>$html</table></body></html>")
 

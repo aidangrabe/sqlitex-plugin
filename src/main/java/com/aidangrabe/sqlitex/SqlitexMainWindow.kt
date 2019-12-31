@@ -1,8 +1,7 @@
 package com.aidangrabe.sqlitex
 
 import com.aidangrabe.sqlitex.android.*
-import com.aidangrabe.sqlitex.data.TableParser
-import javax.swing.table.DefaultTableModel
+import com.aidangrabe.sqlitex.data.HtmlTableParser
 
 class SqlitexMainWindow(
         private val viewHolder: MainWindowViewHolder
@@ -12,23 +11,9 @@ class SqlitexMainWindow(
     private var database: String = ""
 
     init {
+        // set up the listeners
         with(viewHolder) {
-            submitQueryListener = {
-                val sqliteOutput = SqliteContext(process, database).exec("$it;")
-
-                val parser = TableParser()
-                val tableData = parser.parse(sqliteOutput)
-
-                val tableModel = DefaultTableModel()
-
-                println("column names: ${tableData.columnNames}")
-                println("rows: ${tableData.rows}")
-
-                tableData.columnNames.forEach { tableModel.addColumn(it) }
-                tableData.rows.forEach { tableModel.addRow(it.toTypedArray()) }
-
-                resultsTable.model = tableModel
-            }
+            submitQueryListener = { onSqlQuerySumbit(it) }
 
             deviceChangedListener = {
                 if (it !is NoDevice) {
@@ -44,14 +29,23 @@ class SqlitexMainWindow(
             databaseChangedListener = {
                 database = it
             }
-
-            val devices = getAvailableDevices()
-            setAvailableDevices(devices)
-
-            if (devices.size == 1) {
-                onDeviceSelected(devices.first().toDevice())
-            }
         }
+
+        val devices = getAvailableDevices()
+        viewHolder.setAvailableDevices(devices)
+
+        if (devices.size == 1) {
+            onDeviceSelected(devices.first().toDevice())
+        }
+    }
+
+    private fun onSqlQuerySumbit(query: String) {
+        val sqliteOutput = SqliteContext(process, database).exec("$query;")
+
+        val parser = HtmlTableParser()
+        val tableData = parser.parse(sqliteOutput)
+
+        viewHolder.updateTableResults(tableData)
     }
 
     private fun onDeviceSelected(device: Device) {

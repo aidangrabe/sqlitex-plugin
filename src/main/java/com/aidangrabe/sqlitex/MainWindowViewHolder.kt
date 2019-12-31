@@ -1,14 +1,16 @@
 package com.aidangrabe.sqlitex
 
 import com.aidangrabe.sqlitex.android.DeviceOption
+import com.aidangrabe.sqlitex.data.TableData
 import com.aidangrabe.sqlitex.swingx.SimpleListCellRenderer
 import java.awt.event.KeyEvent
 import java.awt.event.KeyListener
 import javax.swing.*
+import javax.swing.table.DefaultTableModel
 
 data class MainWindowViewHolder(
-        val queryField: JTextArea,
-        val resultsTable: JTable,
+        private val queryField: JTextArea,
+        private val resultsTable: JTable,
         private val devicePicker: JComboBox<DeviceOption>,
         private val processPicker: JComboBox<String>,
         private val databasePicker: JComboBox<String>
@@ -55,6 +57,18 @@ data class MainWindowViewHolder(
         if (databases.size == 1) {
             invokeDatabaseChangedListener(databases.first())
         }
+    }
+
+    fun updateTableResults(tableData: TableData) {
+        val tableModel = DefaultTableModel()
+
+        println("column names: ${tableData.columnNames}")
+        println("rows: ${tableData.rows}")
+
+        tableData.columnNames.forEach { tableModel.addColumn(it) }
+        tableData.rows.forEach { tableModel.addRow(it.toTypedArray()) }
+
+        resultsTable.model = tableModel
     }
 
     private fun invokeDatabaseChangedListener(database: String) {
