@@ -26,10 +26,19 @@ class SqlitexMainWindow(
         with(viewHolder) {
             submitQueryListener = { onSqlQuerySubmit(it) }
             deviceChangedListener = { onSelectedDeviceChanged(it) }
+            onDevicePickerOpened = { onDevicePickerOpened() }
             processChangedListener = { onSelectedProcessChanged(it) }
             databaseChangedListener = { onSelectedDatabaseChanged(it) }
         }
 
+        loadAvailableDevices()
+    }
+
+    private fun onDevicePickerOpened() {
+        loadAvailableDevices()
+    }
+
+    private fun loadAvailableDevices() {
         val devices = getAvailableDevices()
         viewHolder.setAvailableDevices(devices)
 

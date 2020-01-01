@@ -6,6 +6,8 @@ import com.aidangrabe.sqlitex.swingx.SimpleListCellRenderer
 import java.awt.event.KeyEvent
 import java.awt.event.KeyListener
 import javax.swing.*
+import javax.swing.event.PopupMenuEvent
+import javax.swing.event.PopupMenuListener
 import javax.swing.table.DefaultTableModel
 
 data class MainWindowViewHolder(
@@ -24,6 +26,8 @@ data class MainWindowViewHolder(
     var databaseChangedListener: ((String) -> Unit)? = null
     @Volatile
     var submitQueryListener: ((String) -> Unit)? = null
+    @Volatile
+    var onDevicePickerOpened: (() -> Unit)? = null
 
     init {
         queryField.addKeyListener(QueryFieldKeyListener())
@@ -33,6 +37,8 @@ data class MainWindowViewHolder(
         devicePicker.addItemListener {
             deviceChangedListener?.invoke(it.item as DeviceOption)
         }
+
+        devicePicker.addPopupMenuListener(DevicePickerPopUpListener())
 
         processPicker.addItemListener {
             processChangedListener?.invoke(it.item.toString())
@@ -118,6 +124,18 @@ data class MainWindowViewHolder(
             }
         }
 
+    }
+
+    private inner class DevicePickerPopUpListener: PopupMenuListener {
+        override fun popupMenuWillBecomeInvisible(e: PopupMenuEvent) {
+        }
+
+        override fun popupMenuCanceled(e: PopupMenuEvent) {
+        }
+
+        override fun popupMenuWillBecomeVisible(e: PopupMenuEvent) {
+            onDevicePickerOpened?.invoke()
+        }
     }
 
 }
