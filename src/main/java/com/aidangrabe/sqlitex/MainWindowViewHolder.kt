@@ -3,6 +3,8 @@ package com.aidangrabe.sqlitex
 import com.aidangrabe.sqlitex.android.DeviceOption
 import com.aidangrabe.sqlitex.data.TableData
 import com.aidangrabe.sqlitex.swingx.SimpleListCellRenderer
+import com.aidangrabe.sqlitex.swingx.getItems
+import com.aidangrabe.sqlitex.swingx.setItems
 import java.awt.event.KeyEvent
 import java.awt.event.KeyListener
 import javax.swing.*
@@ -53,18 +55,18 @@ data class MainWindowViewHolder(
         processPicker.model.selectedItem = process
     }
 
-    fun getAvailableProcesses(): List<String> = processPicker.items()
+    fun getAvailableProcesses(): List<String> = processPicker.getItems()
 
     fun setAvailableDevices(devices: List<DeviceOption>) {
-        devicePicker.setAvailableOptions(devices)
+        devicePicker.setItems(devices)
     }
 
     fun setAvailableProcesses(processes: List<String>) {
-        processPicker.setAvailableOptions(processes)
+        processPicker.setItems(processes)
     }
 
     fun setAvailableDatabases(databases: List<String>) {
-        databasePicker.setAvailableOptions(databases)
+        databasePicker.setItems(databases)
 
         if (databases.size == 1) {
             invokeDatabaseChangedListener(databases.first())
@@ -73,9 +75,6 @@ data class MainWindowViewHolder(
 
     fun updateTableResults(tableData: TableData) {
         val tableModel = DefaultTableModel()
-
-        println("column names: ${tableData.columnNames}")
-        println("rows: ${tableData.rows}")
 
         tableData.columnNames.forEach { tableModel.addColumn(it) }
         tableData.rows.forEach { tableModel.addRow(it.toTypedArray()) }
@@ -138,17 +137,4 @@ data class MainWindowViewHolder(
         }
     }
 
-}
-
-private inline fun <reified T> JComboBox<T>.setAvailableOptions(options: List<T>) {
-    model = DefaultComboBoxModel(options.toTypedArray())
-}
-
-private inline fun <reified T> JComboBox<T>.items(): List<T> {
-    val size = model.size
-    val items = mutableListOf<T>()
-    for (i in 0 until size) {
-        items.add(model.getElementAt(i))
-    }
-    return items.toList()
 }
