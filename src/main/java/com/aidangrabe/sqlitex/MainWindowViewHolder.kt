@@ -43,6 +43,12 @@ data class MainWindowViewHolder(
         }
     }
 
+    fun setSelectedProcess(process: String) {
+        processPicker.model.selectedItem = process
+    }
+
+    fun getAvailableProcesses(): List<String> = processPicker.items()
+
     fun setAvailableDevices(devices: List<DeviceOption>) {
         devicePicker.setAvailableOptions(devices)
     }
@@ -118,4 +124,13 @@ data class MainWindowViewHolder(
 
 private inline fun <reified T> JComboBox<T>.setAvailableOptions(options: List<T>) {
     model = DefaultComboBoxModel(options.toTypedArray())
+}
+
+private inline fun <reified T> JComboBox<T>.items(): List<T> {
+    val size = model.size
+    val items = mutableListOf<T>()
+    for (i in 0 until size) {
+        items.add(model.getElementAt(i))
+    }
+    return items.toList()
 }

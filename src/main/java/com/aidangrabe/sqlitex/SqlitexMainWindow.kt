@@ -2,33 +2,32 @@ package com.aidangrabe.sqlitex
 
 import com.aidangrabe.sqlitex.android.*
 import com.aidangrabe.sqlitex.data.HtmlTableParser
+import com.aidangrabe.sqlitex.extensions.startsWithAnyOf
+import com.aidangrabe.sqlitex.model.DatabaseSession
+import com.intellij.ide.util.PropertiesComponent
 
 class SqlitexMainWindow(
         private val viewHolder: MainWindowViewHolder
 ) {
 
-    private var process: String = ""
-    private var database: String = ""
+    private val appProperties: PropertiesComponent = PropertiesComponent.getInstance()
+
+    private var databaseSession: DatabaseSession = DatabaseSession.from(appProperties)
+        set(value) {
+            // no need to persist the new value if it's the same
+            if (value == field) return
+
+            field = value
+            databaseSession.persist(appProperties)
+        }
 
     init {
         // set up the listeners
         with(viewHolder) {
-            submitQueryListener = { onSqlQuerySumbit(it) }
-
-            deviceChangedListener = {
-                if (it !is NoDevice) {
-                    onDeviceSelected(it.toDevice())
-                }
-            }
-
-            processChangedListener = {
-                process = it
-                setAvailableDatabases(getAvailableDatabases(process))
-            }
-
-            databaseChangedListener = {
-                database = it
-            }
+            submitQueryListener = { onSqlQuerySubmit(it) }
+            deviceChangedListener = { onSelectedDeviceChanged(it) }
+            processChangedListener = { onSelectedProcessChanged(it) }
+            databaseChangedListener = { onSelectedDatabaseChanged(it) }
         }
 
         val devices = getAvailableDevices()
@@ -39,8 +38,23 @@ class SqlitexMainWindow(
         }
     }
 
-    private fun onSqlQuerySumbit(query: String) {
-        val sqliteOutput = SqliteContext(process, database).exec("$query;")
+    private fun onSelectedDatabaseChanged(database: String) {
+        databaseSession = databaseSession.copy(database = database)
+    }
+
+    private fun onSelectedProcessChanged(process: String) {
+        databaseSession = databaseSession.copy(process = process)
+        viewHolder.setAvailableDatabases(getAvailableDatabases(process))
+    }
+
+    private fun onSelectedDeviceChanged(device: DeviceOption) {
+        if (device !is NoDevice) {
+            onDeviceSelected(device.toDevice())
+        }
+    }
+
+    private fun onSqlQuerySubmit(query: String) {
+        val sqliteOutput = SqliteContext(databaseSession.process, databaseSession.database).exec("$query;")
 
         val parser = HtmlTableParser()
         val tableData = parser.parse(sqliteOutput)
@@ -50,7 +64,17 @@ class SqlitexMainWindow(
 
     private fun onDeviceSelected(device: Device) {
         Adb.currentDevice = device
-        viewHolder.setAvailableProcesses(getAvailableProcesses())
+        databaseSession = databaseSession.copy(deviceId = device.name)
+
+        val currentProcesses = viewHolder.getAvailableProcesses()
+        val availableProcesses = getAvailableProcesses()
+        val preselectedProcess = databaseSession.process
+
+        viewHolder.setAvailableProcesses(availableProcesses)
+
+        if (currentProcesses.isEmpty() && preselectedProcess.isNotEmpty() && availableProcesses.contains(preselectedProcess)) {
+            viewHolder.setSelectedProcess(preselectedProcess)
+        }
     }
 
     private fun getAvailableDevices(): List<DeviceOption> {
@@ -77,10 +101,3 @@ class SqlitexMainWindow(
 }
 
 private fun DeviceOption.toDevice() = Device(name, type)
-
-private fun String.startsWithAnyOf(prefixes: List<String>): Boolean {
-    for (prefix in prefixes) {
-        if (startsWith(prefix)) return true
-    }
-    return false
-}
