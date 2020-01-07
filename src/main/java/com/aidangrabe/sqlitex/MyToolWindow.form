@@ -33,7 +33,6 @@
           <gridbag weightx="1.0" weighty="0.0"/>
         </constraints>
         <properties>
-          <background color="-5589833"/>
           <columns value="0"/>
           <lineWrap value="true"/>
           <margin top="0" left="0" bottom="0" right="0"/>

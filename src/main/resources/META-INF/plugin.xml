@@ -1,12 +1,10 @@
 <idea-plugin>
     <id>aidangrabe.com.sqlitex</id>
-    <name>Test</name>
+    <name>Sqlitex</name>
     <vendor email="aidan@teamwork.com" url="http://www.teamwork.com">Teamwork.com</vendor>
 
     <description><![CDATA[
-    This is my text right here.
-    This is my text right here.
-    description.
+    A plugin for querying data in an SQLite database on connected Android emulators or rooted devices.
     ]]></description>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
