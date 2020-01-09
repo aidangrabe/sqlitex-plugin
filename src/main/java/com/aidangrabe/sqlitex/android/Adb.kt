@@ -1,7 +1,11 @@
 package com.aidangrabe.sqlitex.android
 
+import com.intellij.execution.configurations.GeneralCommandLine
+import com.intellij.execution.process.ScriptRunnerUtil
 import java.io.IOException
+import java.nio.charset.Charset
 import java.nio.file.Paths
+
 
 interface DeviceOption {
     val name: String
@@ -11,9 +15,9 @@ interface DeviceOption {
 data class Device(
         override val name: String,
         override val type: String
-): DeviceOption
+) : DeviceOption
 
-object NoDevice: DeviceOption {
+object NoDevice : DeviceOption {
     override val name: String = "No Device"
     override val type: String = "N/A"
 }
@@ -32,7 +36,9 @@ object Adb {
 
     fun listDatabasesForPackage(androidPackage: AndroidPackage): List<String> {
         return exec("shell", "run-as", androidPackage.name, "find", ".", "-iname", "*.db")
-                .split("[\\r\\n]+")
+                .split("\n")
+                .map { it.trim() }
+                .filter { it.isNotBlank() }
                 .map { Paths.get(it).fileName.toString() }
     }
 
@@ -59,18 +65,32 @@ object Adb {
             }
         }
 
-        val commandToExecute = arrayOf("adb") + options + command
+        val commandToExecute = arrayOf("/Users/aidangrabe/Library/Android/sdk/platform-tools/adb") + options + command
 
-        Runtime.getRuntime().exec(commandToExecute).let {
-            return it.inputStream.bufferedReader().use { it.readText() }.apply {
-                it.waitFor()
-            }
-        }
+        val generalCommandLine = GeneralCommandLine(*commandToExecute)
+        generalCommandLine.charset = Charset.forName("UTF-8")
+        //generalCommandLine.setWorkDirectory(project.getBasePath())
+
+//        val processHandler: ProcessHandler = OSProcessHandler(generalCommandLine)
+//        processHandler.startNotify()
+//        processHandler.waitFor()
+
+        return ScriptRunnerUtil.getProcessOutput(generalCommandLine)
+
+//        return processHandler.processInput.bufferedReader().use { it.readText() }.apply {
+//            it.waitFor()
+//        }
+
+//        Runtime.getRuntime().exec(commandToExecute).let {
+//            return it.inputStream.bufferedReader().use { it.readText() }.apply {
+//                it.waitFor()
+//            }
+//        }
     }
 
     private fun adbAvailable(): Boolean {
         return try {
-            Runtime.getRuntime().exec("adb").waitFor()
+            Runtime.getRuntime().exec("/Users/aidangrabe/Library/Android/sdk/platform-tools/adb").waitFor()
             true
         } catch (error: IOException) {
             false
