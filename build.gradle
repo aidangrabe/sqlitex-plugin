@@ -32,6 +32,11 @@ dependencies {
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
     version '2019.1.4'
+    plugins 'android'
+}
+
+runIde {
+    ideDirectory '/Applications/Android Studio.app/Contents'
 }
 
 patchPluginXml {

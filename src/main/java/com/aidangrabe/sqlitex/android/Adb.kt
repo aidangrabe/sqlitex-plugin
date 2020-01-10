@@ -2,9 +2,12 @@ package com.aidangrabe.sqlitex.android
 
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.ScriptRunnerUtil
+import org.jetbrains.android.sdk.AndroidSdkUtils
+import java.io.File
 import java.io.IOException
 import java.nio.charset.Charset
 import java.nio.file.Paths
+import java.util.concurrent.TimeUnit
 
 
 interface DeviceOption {
@@ -31,6 +34,8 @@ object Adb {
 
     val isInstalled by lazy { adbAvailable() }
     var currentDevice: Device? = null
+
+    private val adb: File = AndroidSdkUtils.getAdb(null) ?: throw AdbNotInstalledException()
 
     fun listDevices() = parseDeviceList(exec("devices"))
 
@@ -65,32 +70,17 @@ object Adb {
             }
         }
 
-        val commandToExecute = arrayOf("/Users/aidangrabe/Library/Android/sdk/platform-tools/adb") + options + command
+        val commandToExecute = arrayOf(adb.path) + options + command
 
         val generalCommandLine = GeneralCommandLine(*commandToExecute)
         generalCommandLine.charset = Charset.forName("UTF-8")
-        //generalCommandLine.setWorkDirectory(project.getBasePath())
-
-//        val processHandler: ProcessHandler = OSProcessHandler(generalCommandLine)
-//        processHandler.startNotify()
-//        processHandler.waitFor()
 
         return ScriptRunnerUtil.getProcessOutput(generalCommandLine)
-
-//        return processHandler.processInput.bufferedReader().use { it.readText() }.apply {
-//            it.waitFor()
-//        }
-
-//        Runtime.getRuntime().exec(commandToExecute).let {
-//            return it.inputStream.bufferedReader().use { it.readText() }.apply {
-//                it.waitFor()
-//            }
-//        }
     }
 
     private fun adbAvailable(): Boolean {
         return try {
-            Runtime.getRuntime().exec("/Users/aidangrabe/Library/Android/sdk/platform-tools/adb").waitFor()
+            Runtime.getRuntime().exec(adb.path).waitFor(5, TimeUnit.SECONDS)
             true
         } catch (error: IOException) {
             false
