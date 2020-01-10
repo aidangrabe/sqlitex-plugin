@@ -116,10 +116,11 @@ data class MainWindowViewHolder(
 
         private fun handleEnterKey(event: KeyEvent) {
             if (event.isShiftDown) {
-                // TODO should insert at current position, not append
-                queryField.append("\n")
+                val caretPosition = queryField.caretPosition
+                queryField.insert("\n", caretPosition)
             } else {
                 invokeOnSubmitListener()
+                event.consume()
             }
         }
 

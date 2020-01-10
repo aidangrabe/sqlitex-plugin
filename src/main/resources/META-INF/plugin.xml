@@ -17,7 +17,7 @@
     <depends>org.jetbrains.android</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Sqlitex" secondary="true" icon="/myToolWindow/plus.png" anchor="bottom"
+        <toolWindow id="Sqlitex" secondary="true" anchor="bottom"
                     factoryClass="com.aidangrabe.sqlitex.WindowFactory"/>
     </extensions>
 
