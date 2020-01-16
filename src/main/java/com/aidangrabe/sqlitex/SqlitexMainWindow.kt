@@ -2,6 +2,7 @@ package com.aidangrabe.sqlitex
 
 import com.aidangrabe.sqlitex.android.*
 import com.aidangrabe.sqlitex.data.HtmlTableParser
+import com.aidangrabe.sqlitex.data.TableData
 import com.aidangrabe.sqlitex.extensions.startsWithAnyOf
 import com.aidangrabe.sqlitex.model.DatabaseSession
 import com.intellij.ide.util.PropertiesComponent
@@ -64,9 +65,14 @@ class SqlitexMainWindow(
 
     private fun onSqlQuerySubmit(query: String) {
         val sqliteOutput = SqliteContext(databaseSession.process, databaseSession.database).exec("$query;")
-
-        val parser = HtmlTableParser()
-        val tableData = parser.parse(sqliteOutput)
+        val tableData = if (sqliteOutput.isBlank()) {
+            TableData(listOf("Result"), listOf(listOf("No rows returned")))
+        } else if (sqliteOutput.startsWith("Error: ")) {
+            TableData(listOf("Error"), listOf(listOf(sqliteOutput)))
+        } else {
+            val parser = HtmlTableParser()
+            parser.parse(sqliteOutput)
+        }
 
         viewHolder.updateTableResults(tableData)
     }
