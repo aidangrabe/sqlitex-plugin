@@ -64,14 +64,17 @@ class SqlitexMainWindow(
     }
 
     private fun onSqlQuerySubmit(query: String) {
-        val sqliteOutput = SqliteContext(databaseSession.process, databaseSession.database).exec("$query;")
-        val tableData = if (sqliteOutput.isBlank()) {
-            TableData(listOf("Result"), listOf(listOf("No rows returned")))
-        } else if (sqliteOutput.startsWith("Error: ")) {
-            TableData(listOf("Error"), listOf(listOf(sqliteOutput)))
-        } else {
-            val parser = HtmlTableParser()
-            parser.parse(sqliteOutput)
+        val tableData: TableData = try {
+            val output = SqliteContext(databaseSession.process, databaseSession.database).exec("$query;")
+            if (output.isBlank()) {
+                TableData(listOf("0 Results"), listOf(listOf("No results matched the given query")))
+            } else {
+                val parser = HtmlTableParser()
+                parser.parse(output)
+            }
+        } catch (e: SqliteException) {
+            val errorMessage = e.message!!
+            TableData(listOf("Error"), listOf(listOf(errorMessage)))
         }
 
         viewHolder.updateTableResults(tableData)

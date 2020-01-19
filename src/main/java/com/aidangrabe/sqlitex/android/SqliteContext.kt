@@ -13,8 +13,20 @@ class SqliteContext(
         return parseTableNamesFromConsoleOutput(tables)
     }
 
-    /** Execute the given [command] which can be an SQLite3 command or SQL query. */
+    /**
+     * Execute the given [command] which can be an SQLite3 command or SQL query.
+     *
+     * @throws SqliteException when the issued command returns an error.
+     */
     fun exec(command: String): String {
+        val commandOutput = executeAdbCommand(command)
+
+        if (isError(commandOutput)) throw SqliteException(command, commandOutput)
+
+        return commandOutput
+    }
+
+    private fun executeAdbCommand(command: String): String {
         println("Executing: '$command' for package: '$packageName' and database: '$databaseName'")
 
         return Adb.exec(
@@ -23,6 +35,8 @@ class SqliteContext(
                 command
         )
     }
+
+    private fun isError(output: String): Boolean = output.startsWith("Error: ")
 
     private fun parseTableNamesFromConsoleOutput(output: String): List<String> {
         // error with package name
@@ -35,3 +49,8 @@ class SqliteContext(
     }
 
 }
+
+/**
+ * An [Exception] thrown when an error occurs wile executing an SQLite3 command.
+ */
+class SqliteException(val command: String, output: String) : Exception(output)
