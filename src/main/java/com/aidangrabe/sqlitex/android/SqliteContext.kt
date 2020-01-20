@@ -19,20 +19,21 @@ class SqliteContext(
      * @throws SqliteException when the issued command returns an error.
      */
     fun exec(command: String): String {
-        val commandOutput = executeAdbCommand(command)
+        val sqliteCommand = Sqlite3Command(command)
+        val commandOutput = executeAdbCommand(sqliteCommand)
 
-        if (isError(commandOutput)) throw SqliteException(command, commandOutput)
+        if (isError(commandOutput)) throw SqliteException(sqliteCommand, commandOutput)
 
         return commandOutput
     }
 
-    private fun executeAdbCommand(command: String): String {
+    private fun executeAdbCommand(command: Sqlite3Command): String {
         println("Executing: '$command' for package: '$packageName' and database: '$databaseName'")
 
         return Adb.exec(
                 "exec-out", "run-as", packageName,
                 "sqlite3", "-html", "-header", "databases/$databaseName",
-                command
+                command.getFormattedQueryOrCommand()
         )
     }
 
@@ -50,7 +51,20 @@ class SqliteContext(
 
 }
 
+class Sqlite3Command(input: String) {
+
+    val input = input.trim()
+
+    fun isCommand(): Boolean = input.startsWith(".")
+
+    fun isQuery(): Boolean = !isCommand()
+
+    fun getFormattedQueryOrCommand(): String =
+            if (isQuery()) "$input;" else input
+
+}
+
 /**
  * An [Exception] thrown when an error occurs wile executing an SQLite3 command.
  */
-class SqliteException(val command: String, output: String) : Exception(output)
+class SqliteException(val command: Sqlite3Command, output: String) : Exception(output)
