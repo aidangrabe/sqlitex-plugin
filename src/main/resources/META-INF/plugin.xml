@@ -2,6 +2,7 @@
     <id>aidangrabe.com.sqlitex</id>
     <name>Sqlitex</name>
     <vendor email="aidan@teamwork.com" url="http://www.teamwork.com">Teamwork.com</vendor>
+    <version>0.0.1</version>
 
     <description><![CDATA[
     A plugin for querying data in an SQLite database on connected Android emulators or rooted devices.
