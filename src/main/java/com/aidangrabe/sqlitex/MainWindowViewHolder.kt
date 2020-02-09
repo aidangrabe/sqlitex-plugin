@@ -7,7 +7,9 @@ import com.aidangrabe.sqlitex.swingx.getItems
 import com.aidangrabe.sqlitex.swingx.setItems
 import java.awt.event.KeyEvent
 import java.awt.event.KeyListener
-import javax.swing.*
+import javax.swing.JComboBox
+import javax.swing.JTable
+import javax.swing.JTextArea
 import javax.swing.event.PopupMenuEvent
 import javax.swing.event.PopupMenuListener
 import javax.swing.table.DefaultTableModel
@@ -20,15 +22,10 @@ data class MainWindowViewHolder(
         private val databasePicker: JComboBox<String>
 ) {
 
-    @Volatile
     var deviceChangedListener: ((DeviceOption) -> Unit)? = null
-    @Volatile
     var processChangedListener: ((String) -> Unit)? = null
-    @Volatile
     var databaseChangedListener: ((String) -> Unit)? = null
-    @Volatile
     var submitQueryListener: ((String) -> Unit)? = null
-    @Volatile
     var onDevicePickerOpened: (() -> Unit)? = null
 
     init {
@@ -126,7 +123,7 @@ data class MainWindowViewHolder(
 
     }
 
-    private inner class DevicePickerPopUpListener: PopupMenuListener {
+    private inner class DevicePickerPopUpListener : PopupMenuListener {
         override fun popupMenuWillBecomeInvisible(e: PopupMenuEvent) {
         }
 

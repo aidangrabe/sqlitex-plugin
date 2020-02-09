@@ -10,7 +10,7 @@ class SqliteContext(
     /** List all tables for the current database. */
     fun listTables(): List<String> {
         val tables = exec(".tables")
-        return parseTableNamesFromConsoleOutput(tables)
+        return parseTableNamesFromConsoleOutput(tables.output)
     }
 
     /**
@@ -18,13 +18,13 @@ class SqliteContext(
      *
      * @throws SqliteException when the issued command returns an error.
      */
-    fun exec(command: String): String {
-        val sqliteCommand = Sqlite3Command(command)
+    fun exec(command: String): Sqlite3Output {
+        val sqliteCommand = Sqlite3Command.from(command)
         val commandOutput = executeAdbCommand(sqliteCommand)
 
         if (isError(commandOutput)) throw SqliteException(sqliteCommand, commandOutput)
 
-        return commandOutput
+        return Sqlite3Output(sqliteCommand, commandOutput)
     }
 
     private fun executeAdbCommand(command: Sqlite3Command): String {
@@ -51,9 +51,7 @@ class SqliteContext(
 
 }
 
-class Sqlite3Command(input: String) {
-
-    val input = input.trim()
+class Sqlite3Command private constructor(val input: String) {
 
     fun isCommand(): Boolean = input.startsWith(".")
 
@@ -62,6 +60,19 @@ class Sqlite3Command(input: String) {
     fun getFormattedQueryOrCommand(): String =
             if (isQuery()) "$input;" else input
 
+    override fun toString(): String = "Sqlite3Command(isCommand=${isCommand()}, query=${getFormattedQueryOrCommand()})"
+
+    companion object {
+        fun from(input: String) = Sqlite3Command(input = input.trim())
+    }
+
+}
+
+data class Sqlite3Output(
+        val command: Sqlite3Command,
+        val output: String
+) {
+    fun isEmpty(): Boolean = output.isBlank()
 }
 
 /**

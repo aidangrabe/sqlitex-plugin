@@ -65,12 +65,21 @@ class SqlitexMainWindow(
 
     private fun onSqlQuerySubmit(query: String) {
         val tableData: TableData = try {
-            val output = SqliteContext(databaseSession.process, databaseSession.database).exec("$query;")
-            if (output.isBlank()) {
-                TableData(listOf("0 Results"), listOf(listOf("No results matched the given query")))
-            } else {
-                val parser = HtmlTableParser()
-                parser.parse(output)
+            val output = SqliteContext(databaseSession.process, databaseSession.database).exec(query)
+
+            when {
+                output.command.isCommand() -> {
+                    val rows = output.output.split("\\s+".toRegex())
+                            .map { listOf(it) }
+                    TableData(listOf("Command result"), rows)
+                }
+                output.isEmpty() -> {
+                    TableData(listOf("0 Results"), listOf(listOf("No results matched the given query")))
+                }
+                else -> {
+                    val parser = HtmlTableParser()
+                    parser.parse(output.output)
+                }
             }
         } catch (e: SqliteException) {
             val errorMessage = e.message!!
