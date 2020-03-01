@@ -54,7 +54,9 @@ class SqlitexMainWindow(
 
     private fun onSelectedProcessChanged(process: String) {
         databaseSession = databaseSession.copy(process = process)
-        viewHolder.setAvailableDatabases(getAvailableDatabases(process))
+
+        // reset the selected databases as they will have changed
+        viewHolder.setAvailableDatabases(getAvailableDatabases(process), selectFirst = true)
     }
 
     private fun onSelectedDeviceChanged(device: DeviceOption) {

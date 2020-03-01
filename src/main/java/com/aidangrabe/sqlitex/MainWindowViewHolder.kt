@@ -62,10 +62,14 @@ data class MainWindowViewHolder(
         processPicker.setItems(processes)
     }
 
-    fun setAvailableDatabases(databases: List<String>) {
+    fun setAvailableDatabases(databases: List<String>, selectFirst: Boolean = false) {
         databasePicker.setItems(databases)
 
-        if (databases.size == 1) {
+        if (databases.isEmpty()) {
+            return
+        }
+
+        if (databases.size == 1 || selectFirst) {
             invokeDatabaseChangedListener(databases.first())
         }
     }
