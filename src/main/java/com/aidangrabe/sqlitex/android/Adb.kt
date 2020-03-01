@@ -6,7 +6,6 @@ import org.jetbrains.android.sdk.AndroidSdkUtils
 import java.io.File
 import java.io.IOException
 import java.nio.charset.Charset
-import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 
 
@@ -30,21 +29,25 @@ object NoDevice : DeviceOption {
  */
 data class AndroidPackage(val name: String)
 
+private const val PATH_APP_DATABASES: String = "databases"
+private const val PATH_DATABASES_FILE_EXTENSION: String = ".db"
+
 object Adb {
 
-    val isInstalled by lazy { adbAvailable() }
     var currentDevice: Device? = null
+
+    private val isInstalled by lazy { adbAvailable() }
 
     private val adb: File = AndroidSdkUtils.getAdb(null) ?: throw AdbNotInstalledException()
 
     fun listDevices() = parseDeviceList(exec("devices"))
 
     fun listDatabasesForPackage(androidPackage: AndroidPackage): List<String> {
-        return exec("shell", "run-as", androidPackage.name, "find", ".", "-iname", "*.db")
+        return listDirectoryContents(androidPackage, PATH_APP_DATABASES)
                 .split("\n")
-                .map { it.trim() }
-                .filter { it.isNotBlank() }
-                .map { Paths.get(it).fileName.toString() }
+                .map(String::trim)
+                .filter(CharSequence::isNotBlank)
+                .filter { it.endsWith(PATH_DATABASES_FILE_EXTENSION) }
     }
 
     fun listPackages(): List<AndroidPackage> {
@@ -56,6 +59,12 @@ object Adb {
                 .map { AndroidPackage(it) }
                 .toList()
     }
+
+    private fun listDirectoryContents(androidPackage: AndroidPackage, path: String): String =
+            runAs(androidPackage, "ls", path)
+
+    fun runAs(androidPackage: AndroidPackage, vararg args: String): String =
+            exec("shell", "run-as", androidPackage.name, *args)
 
     fun exec(vararg command: String): String {
         if (!isInstalled) {
